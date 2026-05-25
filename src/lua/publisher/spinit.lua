@@ -234,9 +234,11 @@ function exit(graceful)
     end
     errcount = splib.errcount()
     warncount = splib.warncount()
-    main.log("info", "Stop processing data")
-    main.log("info", string.format("%d errors occurred", errcount))
-    main.log("info", string.format("Duration: %3f seconds", os.gettimeofday() - starttime))
+    -- End-of-run summary lines: use splib.log directly so main.log's
+    -- automatic page/line context attachment is bypassed.
+    splib.log("info", "Stop processing data")
+    splib.log("info", string.format("%d errors occurred", errcount))
+    splib.log("info", string.format("Duration: %3f seconds", os.gettimeofday() - starttime))
 
     if errcount > 0 then
         publisher.errorcode = math.max(publisher.errorcode, 1)
@@ -1126,7 +1128,10 @@ local function setup()
     end
 end
 
-prohibited_at_end = {
+--- This is the entry point in the publishing run and called from the TeX file (`publisher.tex`).
+publisher = require("publisher")
+
+publisher.prohibited_at_end = {
     zh = {
         ["$"] = true,
         ["("] = true,
@@ -1174,7 +1179,7 @@ prohibited_at_end = {
     },
 }
 
-prohibited_at_beginning = {
+publisher.prohibited_at_beginning = {
     zh = {
         ["!"] = true,
         ["%"] = true,
@@ -1246,8 +1251,6 @@ prohibited_at_beginning = {
         ["〆"] = true,
     },
 }
---- This is the entry point in the publishing run and called from the TeX file (`publisher.tex`).
-publisher = require("publisher")
 
 local function traceback(what)
     -- get message from what
@@ -1299,7 +1302,9 @@ local function traceback(what)
 end
 
 function main_loop()
-    main.log("info", "Start processing")
+    -- splib.log (not main.log) so no page/line context is attached: the
+    -- run hasn't started yet, there is no meaningful current page.
+    splib.log("info", "Start processing")
     setup()
     xpcall(publisher.dothings, traceback)
     exit(true)
