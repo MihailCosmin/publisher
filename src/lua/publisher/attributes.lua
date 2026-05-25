@@ -65,7 +65,7 @@ function M.read_attribute(layoutxml, dataxml, attname, typ, default, context)
                 local copysequence = dataxml.sequence
                 local seq, msg = dataxml:eval(x)
                 if msg then
-                    main.log("error", msg, "xpath", x)
+                        main.log("error", msg, "xpath", x, "file", publisher.current_layout_file)
                     return nil
                 end
                 local txt
@@ -96,7 +96,7 @@ function M.read_attribute(layoutxml, dataxml, attname, typ, default, context)
         if publisher.newxpath then
             local seq, msg = dataxml:eval(val)
             if msg then
-                main.log("error", msg, "xpath", val)
+                    main.log("error", msg, "xpath", val, "file", publisher.current_layout_file)
                 return nil
             end
             return publisher.xpath.string_value(seq)
@@ -107,7 +107,7 @@ function M.read_attribute(layoutxml, dataxml, attname, typ, default, context)
         if publisher.newxpath then
             local seq, msg = dataxml:eval(val)
             if msg then
-                main.log("error", msg, "xpath", val)
+                    main.log("error", msg, "xpath", val, "file", publisher.current_layout_file)
                 return nil
             end
             return seq
