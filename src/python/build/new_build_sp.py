@@ -143,7 +143,7 @@ if not lib_dir_win or not lib_name:
             try_make_import_lib(mingw_bin_dir(MINGW_POSIX), dll54, out_lib)
 
 # ---- Local sdluatex binaries (pre-extracted) ----
-SDLUATEX_WIN_DIR = r"D:\Downloads\luatex_122-win-mac-linux\win"
+SDLUATEX_WIN_DIR = r"C:\Users\munte\Develop\IT\Speedata\luatex_122-win-mac-linux\win"
 if not exists(SDLUATEX_WIN_DIR):
     raise SystemExit(f"ERROR: sdluatex Windows binaries not found at {SDLUATEX_WIN_DIR}")
 
