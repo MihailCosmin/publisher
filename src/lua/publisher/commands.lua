@@ -932,7 +932,7 @@ function commands.copy_of(layoutxml, dataxml)
             local selectionstring = publisher.attribute_helpers.read_attribute(layoutxml, dataxml, "select", "string")
             local seq, msg = dataxml:eval(selectionstring)
             if msg then
-                main.log("error", msg)
+                main.log("error", msg, "xpath", selectionstring)
                 return
             end
             selection = {}
@@ -3397,7 +3397,7 @@ function commands.makeindex(layoutxml, dataxml)
         local msg
         selection, msg = dataxml:eval(selectstring)
         if msg then
-            main.log("error", msg)
+            main.log("error", msg, "xpath", selectstring)
         end
     end
 
@@ -3533,7 +3533,7 @@ function commands.message(layoutxml, dataxml)
             local copysequence = dataxml.sequence
             local seq, msg = dataxml:eval(selection)
             if msg then
-                main.log("error", msg, lineinfo(layoutxml))
+                main.log("error", msg, "xpath", selection, lineinfo(layoutxml))
                 return
             end
             contents = publisher.xpath.string_value(seq)
@@ -5670,7 +5670,7 @@ function commands.save_dataset(layoutxml, dataxml)
         if publisher.newxpath then
             local seq, msg = dataxml:eval(selection)
             if msg then
-                main.log("error", msg)
+                main.log("error", msg, "xpath", selection)
             end
             tab = seq
         else
@@ -5912,7 +5912,7 @@ function commands.setvariable(layoutxml, dataxml)
             if publisher.newxpath then
                 local seq, msg = dataxml:eval(selection)
                 if msg then
-                    main.log("error", msg, lineinfo(layoutxml))
+                    main.log("error", msg, "xpath", selection, lineinfo(layoutxml))
                 end
                 dataxml.vars[varname] = seq
                 contents = seq
@@ -6075,7 +6075,7 @@ function commands.sort_sequence(layoutxml, dataxml)
         local msg
         sequence, msg = dataxml:eval(selection)
         if msg then
-            main.log("error", msg)
+            main.log("error", msg, "xpath", selection)
         end
     else
         sequence = publisher.xpath.parse(dataxml, selection, layoutxml[".__ns"])
@@ -6335,7 +6335,7 @@ function commands.switch(layoutxml, dataxml)
             if publisher.newxpath then
                 local seq, msg = dataxml:eval(test)
                 if msg then
-                    main.log("error", msg)
+                    main.log("error", msg, "xpath", test)
                     return nil
                 end
                 case_matched = publisher.xpath.boolean_value(seq)
@@ -7452,7 +7452,7 @@ function commands.until_do(layoutxml, dataxml)
             publisher.dispatch.dispatch(layoutxml, dataxml)
             local seq, msg = dataxml:eval(test)
             if msg then
-                main.log("error", msg)
+                main.log("error", msg, "xpath", test)
                 break
             end
             local tf = publisher.xpath.boolean_value(seq)
@@ -7506,7 +7506,7 @@ function commands.value(layoutxml, dataxml)
             local ret = {}
             local seq, msg = dataxml:eval(selection)
             if msg then
-                main.log("error", "xpath error", "message", msg)
+                main.log("error", "xpath error", "message", msg, "xpath", selection, "file", publisher.current_layout_file)
                 return
             end
             if seq then
@@ -7574,7 +7574,7 @@ function commands.while_do(layoutxml, dataxml)
         while true do
             local seq, msg = dataxml:eval(test)
             if msg then
-                main.log("error", msg)
+                main.log("error", msg, "xpath", test)
                 break
             end
             local tf = publisher.xpath.boolean_value(seq)

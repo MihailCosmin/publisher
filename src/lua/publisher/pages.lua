@@ -492,7 +492,7 @@ function M.detect_pagetype(pagenumber, data)
                 assert(data, "detect_pagetype")
                 local seq, msg = data:eval(pagetype.is_pagetype)
                 if msg then
-                    main.log("error", msg)
+                    main.log("error", msg, "xpath", pagetype.is_pagetype)
                 end
                 local ok
                 ok, msg = publisher.xpath.boolean_value(seq)
