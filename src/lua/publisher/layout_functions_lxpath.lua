@@ -15,6 +15,74 @@ local links_module = require("publisher.links")
 local luxor = do_luafile("luxor.lua")
 local sha = require("shalocal")
 
+local function debug_concat_arg(item)
+    local itemtype = type(item)
+    if itemtype ~= "table" then
+        return string.format("%s=%q", itemtype, tostring(item))
+    end
+
+    local details = { "table" }
+    local ok_string, string_value = pcall(function()
+        return publisher.xpath.string_value(item)
+    end)
+    if ok_string then
+        details[#details + 1] = string.format("string_value=%q", tostring(string_value or ""))
+    else
+        details[#details + 1] = string.format("string_value_error=%q", tostring(string_value))
+    end
+
+    if item[".__name"] or item[".__local_name"] then
+        local ok_xml, xml_value = pcall(function()
+            return publisher.xml_helpers.xml_to_string_newxpath(item)
+        end)
+        if ok_xml then
+            details[#details + 1] = string.format("xml=%q", xml_value)
+        else
+            details[#details + 1] = string.format("xml_error=%q", tostring(xml_value))
+        end
+    elseif item.value ~= nil then
+        details[#details + 1] = string.format("value=%q", tostring(item.value))
+    end
+
+    return table.concat(details, ", ")
+end
+
+local function concat_attr_name(arg)
+    if type(arg) ~= "table" then
+        error(string.format("table.concat(arg) failed: arg is %s, not table", type(arg)), 2)
+    end
+
+    local ok, result = pcall(table.concat, arg)
+    if ok then
+        return result
+    end
+
+    local concat_parts = {}
+    local raw_parts = {}
+    for i = 1, #arg do
+        local item = arg[i]
+        raw_parts[#raw_parts + 1] = string.format("[%d]=%s", i, debug_concat_arg(item))
+        if type(item) == "table" then
+            local ok_string, string_value = pcall(function()
+                return publisher.xpath.string_value(item)
+            end)
+            concat_parts[#concat_parts + 1] = ok_string and tostring(string_value or "") or ""
+        else
+            concat_parts[#concat_parts + 1] = tostring(item or "")
+        end
+    end
+
+    error(
+        string.format(
+            "table.concat(arg) failed: %s; full_concat_string=%q; concat_args=%s",
+            tostring(result),
+            table.concat(concat_parts, ""),
+            table.concat(raw_parts, "; ")
+        ),
+        2
+    )
+end
+
 -- Return filename, pagenumber, box and unit from the arg. Used in imagewidth et al.
 --- @param arg table
 --- @return string, number, string, string | nil
@@ -620,7 +688,7 @@ local function variable(dataxml, arg)
 end
 
 local function attr(dataxml, arg)
-    local attname = table.concat(arg)
+    local attname = concat_attr_name(arg)
     local att = dataxml[attname]
     return { att }, nil
 end
